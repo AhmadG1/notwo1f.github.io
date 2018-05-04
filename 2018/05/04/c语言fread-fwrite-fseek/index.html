@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>c语言fread()fwrite()fseek() | Notwolf&#39;s Blog</title>
+
+  <!-- keywords -->
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="好久没用c语言的这部分的东西了，今天看到一个练习是:将notepad.exe读取到内存中，然后将这片内存中的内容写入到一个空二进制文件中，看新生成的二进制文件是否可执行 不做这个练习，凭自己大一瞎搞过来的经验也知道，是可以执行的，可是实际做的时候居然不行，是因为对C语言文件操作部分不熟，被坑了好久。。。唉 涉及到几个函数的使用：fclose()、fopen()、fread()、fwrite()、f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="c语言fread()fwrite()fseek()">
+<meta property="og:url" content="http://notwo1f.github.io/2018/05/04/c语言fread-fwrite-fseek/index.html">
+<meta property="og:site_name" content="Notwolf&#39;s Blog">
+<meta property="og:description" content="好久没用c语言的这部分的东西了，今天看到一个练习是:将notepad.exe读取到内存中，然后将这片内存中的内容写入到一个空二进制文件中，看新生成的二进制文件是否可执行 不做这个练习，凭自己大一瞎搞过来的经验也知道，是可以执行的，可是实际做的时候居然不行，是因为对C语言文件操作部分不熟，被坑了好久。。。唉 涉及到几个函数的使用：fclose()、fopen()、fread()、fwrite()、f">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-04T07:52:37.879Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="c语言fread()fwrite()fseek()">
+<meta name="twitter:description" content="好久没用c语言的这部分的东西了，今天看到一个练习是:将notepad.exe读取到内存中，然后将这片内存中的内容写入到一个空二进制文件中，看新生成的二进制文件是否可执行 不做这个练习，凭自己大一瞎搞过来的经验也知道，是可以执行的，可是实际做的时候居然不行，是因为对C语言文件操作部分不熟，被坑了好久。。。唉 涉及到几个函数的使用：fclose()、fopen()、fread()、fwrite()、f">
+  
+    <link rel="alternative" href="/atom.xml" title="Notwolf&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://ovni67v5o.bkt.clouddn.com/blog/180310/44ckhLemj4.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+  
+<!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85415703-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  <script src="//cdn.bootcss.com/require.js/2.3.2/require.min.js"></script>
+  <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+
+  
+</head>
+<body>
+  <div id="container">
+    <div id="particles-js"></div>
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Notwolf</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">除了技术还有生活！</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/notwo1f" title="github">github</a>
+					        
+								<a class="mail" target="_blank" href="/notwolf888@gmail.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://f1sh.site">f1sh</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://iruby.me/">dimo</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://feiyyx.cc/">feiyyx</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.k0rz3n.com/">k0rz3n</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.pupiles.com/">pupiles</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">Link knowledge with technology and Follow my heart</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">Notwolf</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">Notwolf</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">除了技术还有生活！</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/notwo1f" title="github">github</a>
+			        
+						<a class="mail" target="_blank" href="/notwolf888@gmail.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-c语言fread-fwrite-fseek" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/05/04/c语言fread-fwrite-fseek/" class="article-date">
+  	<time datetime="2018-05-04T07:52:09.000Z" itemprop="datePublished">2018-05-04</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      c语言fread()fwrite()fseek()
+      
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>好久没用c语言的这部分的东西了，今天看到一个练习是:<strong>将notepad.exe读取到内存中，然后将这片内存中的内容写入到一个空二进制文件中，看新生成的二进制文件是否可执行</strong></p>
+<p>不做这个练习，凭自己大一瞎搞过来的经验也知道，是可以执行的，可是实际做的时候居然不行，是因为对C语言文件操作部分不熟，被坑了好久。。。唉</p>
+<p>涉及到几个函数的使用：fclose()、fopen()、fread()、fwrite()、fseek()</p>
+<h3 id="fopen"><a href="#fopen" class="headerlink" title="fopen()"></a>fopen()</h3><p>fopen()是文件打开函数，返回可以访问文件内容的<em>文件指针</em></p>
+<p>使用格式：</p>
+<blockquote>
+<p>fopen(“filename”,”mode”);</p>
+</blockquote>
+<p><strong>filename</strong>为要打开的路径<br><strong>mode</strong>为：<strong>w(写)、r(读)、a(追加)</strong>以及配合他们使用的<strong>b（二进制方式）</strong><br>不使用带b后缀的打开模式时，使用<strong>文本模式</strong></p>
+<h3 id="fclose"><a href="#fclose" class="headerlink" title="fclose()"></a>fclose()</h3><p>fclose()用于断开系统与打开的文件的指针的之间的联系，可以<strong>使得还在缓冲区中的数据保存到文件中</strong><br>使用格式： fclose(FILE *fp)</p>
+<h3 id="fread"><a href="#fread" class="headerlink" title="fread()"></a>fread()</h3><p>从文件流中读数据，最多读取count个项，每个项size个字节，如果调用成功返回实际读取到的项个数（小于或等于count），如果不成功或读到文件末尾返回0</p>
+<p>原型：</p>
+<blockquote>
+<p>size_t fread ( void _buffer, size_t size, size_t count, FILE_ stream) ;</p>
+</blockquote>
+<p>参数：</p>
+<p>参 数</p>
+<blockquote>
+<p>buffer 用于接收数据的内存地址</p>
+<p>size 要读的每个数据项的字节数，单位是字节</p>
+<p>count 要读count个数据项，每个数据项size个字节.</p>
+<p>stream 输入流</p>
+<p>返回值 返回真实读取的项数，若大于count则意味着产生了错误。另外，产生错误后，文件位置指示器是无法确定的。若其他stream或buffer为空指针，或在unicode模式中写入的字节数为奇数，此函数设置errno为EINVAL以及返回0.</p>
+</blockquote>
+<h3 id="fwrite"><a href="#fwrite" class="headerlink" title="fwrite()"></a><a href="#fwrite" title="fwrite()"></a>fwrite()</h3><p>向指定的文件中写入若干数据块，如成功执行则返回实际写入的数据块数目。该函数以二进制形式对文件进行操作，不局限于文本文件</p>
+<p>原型：</p>
+<blockquote>
+<p>size_t fwrite(const void _buffer, size_t size, size_t count, FILE_ stream);</p>
+</blockquote>
+<p>参数：</p>
+<p>（1）buffer：是一个指针，对fwrite来说，是要获取数据的地址；</p>
+<p>（2）size：要写入内容的单字节数；</p>
+<p>（3）count:要进行写入size字节的数据项的个数；</p>
+<p>（4）stream:目标文件指针；</p>
+<p>（5）返回实际写入的数据项个数count。</p>
+<h3 id="fseek"><a href="#fseek" class="headerlink" title="fseek()"></a><a href="#fseek" title="fseek()"></a>fseek()</h3><p>执行成功的话，stream将指向以fromwhere为基准，偏移offset（指针偏移量）个字节的位置，函数返回0。如果执行失败(比如offset超过文件自身大小)，则不改变stream指向的位置，函数返回一个非0值。</p>
+<p>原型：</p>
+<blockquote>
+<p>int fseek(FILE *stream, long offset, int fromwhere);</p>
+</blockquote>
+<p>函数设置文件指针stream的位置。如果执行成功，stream将指向以fromwhere（偏移起始位置：文件头0(SEEK_SET)，当前位置1(SEEK_CUR)，文件尾2(SEEK_END)）为基准，偏移offset（指针偏移量）个字节的位置。如果执行失败(比如offset超过文件自身大小)，则不改变stream指向的位置。</p>
+<p>下面是我的实现代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">#define _CRT_SECURE_NO_WARNINGS</span><br><span class="line"></span><br><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">#include&lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	int length;</span><br><span class="line"></span><br><span class="line">	FILE * fp = fopen(argv[1], &quot;rb&quot;);   //可读模式打开文件</span><br><span class="line"></span><br><span class="line">	fseek(fp, 0, SEEK_END);   //将文件指针弄到文件位</span><br><span class="line"></span><br><span class="line">	length = ftell(fp);   //将文件的长度返回给length</span><br><span class="line"></span><br><span class="line">	fseek(fp, 0, SEEK_SET);</span><br><span class="line"></span><br><span class="line">	char * text = (char *) malloc(length*sizeof(char));</span><br><span class="line"></span><br><span class="line">	fread(text, sizeof(char), length, fp);</span><br><span class="line"></span><br><span class="line">	fseek(fp, 0, SEEK_SET);</span><br><span class="line"></span><br><span class="line">	FILE  *op = fopen(argv[2], &quot;wb&quot;);</span><br><span class="line"></span><br><span class="line">	fwrite(text, sizeof(char), length,op);    //将加载到内存中的文件写入到一个二进制文件中</span><br><span class="line"></span><br><span class="line">	fclose(fp);</span><br><span class="line"></span><br><span class="line">	fclose(op);</span><br><span class="line"></span><br><span class="line">	free(text);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/05/04/windows程序开发中Unicode和多字符/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">windows程序开发中Unicode和多字符</div>
+      <strong class="article-nav-caption">&gt;</strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="ds-share share" data-thread-key="c语言fread-fwrite-fseek" data-title="c语言fread()fwrite()fseek()" data-url="http://notwo1f.github.io/2018/05/04/c语言fread-fwrite-fseek/"  data-images="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" data-content="c语言fread()fwrite()fseek()">
+    <div class="ds-share-inline">
+      <ul  class="ds-share-icons-16">
+      	<li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+        <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+        <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+        <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+        <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+      </ul>
+      <div class="ds-share-icons-more">
+      </div>
+    </div>
+ </div>
+ 
+
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+      <div class="footer-left">
+        &copy; 2018 Notwolf
+      </div>
+        <div class="footer-right">
+          <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/smackgg/hexo-theme-smackdown" target="_blank">Smackdown</a>
+        </div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="/js/main.js"></script>
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js"></script>
+
+
+  </div>
+</body>
+</html>

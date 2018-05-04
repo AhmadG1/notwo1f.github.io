@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>南邮re writeup | Notwolf&#39;s Blog</title>
+
+  <!-- keywords -->
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="writeup-南邮攻防平台RE练习RE300 第一题拖进IDA里面看一下： 易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。 为了便于分析，修改了一下变量名，加了些注释：进入 flag处理函数看一下。有图可知是读取特定数据段中的数据元素，根据数据元素的值进行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="南邮re writeup">
+<meta property="og:url" content="http://notwo1f.github.io/2018/05/04/南邮re-writeup/index.html">
+<meta property="og:site_name" content="Notwolf&#39;s Blog">
+<meta property="og:description" content="writeup-南邮攻防平台RE练习RE300 第一题拖进IDA里面看一下： 易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。 为了便于分析，修改了一下变量名，加了些注释：进入 flag处理函数看一下。有图可知是读取特定数据段中的数据元素，根据数据元素的值进行">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片1.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片2.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片3.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片4.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片5.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片6.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片7.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902200911.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902201535.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902210915.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902202650.png">
+<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902203131.png">
+<meta property="og:updated_time" content="2018-05-04T07:38:48.029Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="南邮re writeup">
+<meta name="twitter:description" content="writeup-南邮攻防平台RE练习RE300 第一题拖进IDA里面看一下： 易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。 为了便于分析，修改了一下变量名，加了些注释：进入 flag处理函数看一下。有图可知是读取特定数据段中的数据元素，根据数据元素的值进行">
+<meta name="twitter:image" content="http://ovni67v5o.bkt.clouddn.com/图片1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Notwolf&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://ovni67v5o.bkt.clouddn.com/blog/180310/44ckhLemj4.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+  
+<!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85415703-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  <script src="//cdn.bootcss.com/require.js/2.3.2/require.min.js"></script>
+  <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+
+  
+</head>
+<body>
+  <div id="container">
+    <div id="particles-js"></div>
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Notwolf</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">除了技术还有生活！</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/notwo1f" title="github">github</a>
+					        
+								<a class="mail" target="_blank" href="/notwolf888@gmail.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://f1sh.site">f1sh</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://iruby.me/">dimo</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://feiyyx.cc/">feiyyx</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.k0rz3n.com/">k0rz3n</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.pupiles.com/">pupiles</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">Link knowledge with technology and Follow my heart</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">Notwolf</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">Notwolf</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">除了技术还有生活！</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/notwo1f" title="github">github</a>
+			        
+						<a class="mail" target="_blank" href="/notwolf888@gmail.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-南邮re-writeup" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/05/04/南邮re-writeup/" class="article-date">
+  	<time datetime="2018-05-04T07:38:22.000Z" itemprop="datePublished">2018-05-04</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      南邮re writeup
+      
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="writeup-南邮攻防平台RE练习"><a href="#writeup-南邮攻防平台RE练习" class="headerlink" title="writeup-南邮攻防平台RE练习"></a>writeup-南邮攻防平台RE练习</h1><h1 id="RE300-第一题"><a href="#RE300-第一题" class="headerlink" title="RE300 第一题"></a>RE300 第一题</h1><h3 id="拖进IDA里面看一下："><a href="#拖进IDA里面看一下：" class="headerlink" title="拖进IDA里面看一下："></a><a href="#拖进IDA里面看一下：" title="拖进IDA里面看一下："></a>拖进IDA里面看一下：</h3><p><img src="http://ovni67v5o.bkt.clouddn.com/图片1.png" alt=""></p>
+<p>易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。</p>
+<p>为了便于分析，修改了一下变量名，加了些注释：<br><img src="http://ovni67v5o.bkt.clouddn.com/图片2.png" alt=""><br>进入 flag处理函数看一下。<br><img src="http://ovni67v5o.bkt.clouddn.com/图片3.png" alt=""><br>有图可知是读取特定数据段中的数据元素，根据数据元素的值进行switch case操作，看循环便知道要进行5000次的循环，而且每个循环都是根据那个特定数据段中的5000个不同的数据来进行的不同的操作，动态调试的可能性几乎为0，只能静态分析，要是能提取出那个数据段中的15000个数据，逆向的进行循环操作就达到解密的操作了。<br>感谢杜神指点，才知道ida有一个专门的导出特定的数据的功能，不然这题我是没法做的，还是太菜。</p>
+<p><strong>注意到：</strong></p>
+<p><img src="http://ovni67v5o.bkt.clouddn.com/图片4.png" alt=""></p>
+<p>这个是dword数据，我逆的时候，没注意，改变了它的数据类型，写了错的解密程序，然后刚了一会汇编：</p>
+<p><img src="http://ovni67v5o.bkt.clouddn.com/图片5.png" alt=""></p>
+<p>读到画圈的地方才恍然大悟，flag经过处理之后的结果要和这个601060数据段中以doubleword大小读取的前24个元素一致。这个crackme一共要导出两次数据。</p>
+<p>下面进入15000的那个数据段，导出数据。一般情况下都是进去先把它根据情况设置为合适的数据类型，恰好这里就是字节型的，所以不用设置了。然后再把这些数组生成一个数组（右键，选着arry）</p>
+<p><img src="http://ovni67v5o.bkt.clouddn.com/图片6.png" alt=""></p>
+<p>出现如图所示的直接确定就行，毕竟我对ida也不熟。<br>设为数组之后，按shif+e把他导出：</p>
+<p><img src="http://ovni67v5o.bkt.clouddn.com/图片7.png" alt=""></p>
+<p>我是以16进制形式把他导出的。（ida会把这个这个数组以c语言声明定义数组的形式给导出到一个txt文件中）<br>另外一个数组同理可导出。</p>
+<p>然后写一个解密的小程序就行，当时python不熟，用的c写的辣鸡小程序</p>
+<p><a href="https://pan.baidu.com/s/1qY3Ft9q" target="_blank" rel="noopener">程序源文件和keygen打包</a></p>
+<p>密码：as5r</p>
+<h1 id="RE300-第二题"><a href="#RE300-第二题" class="headerlink" title="RE300 第二题"></a><a href="#RE300-第二题" title="RE300 第二题"></a>RE300 第二题</h1><p>占位等下写</p>
+<h1 id="RE500"><a href="#RE500" class="headerlink" title="RE500"></a><a href="#RE500" title="RE500"></a>RE500</h1><p>这题还是有趣，学到了新技能：<strong>正则表达式</strong></p>
+<h2 id="我的分析过程："><a href="#我的分析过程：" class="headerlink" title="我的分析过程："></a><a href="#我的分析过程：" title="我的分析过程："></a>我的分析过程：</h2><h3 id="使用ida打开大致看看"><a href="#使用ida打开大致看看" class="headerlink" title="使用ida打开大致看看"></a><a href="#使用ida打开大致看看" title="使用ida打开大致看看"></a>使用ida打开大致看看</h3><p>打开后，转换到<strong>graph</strong>模式<br>打开后如图：<br><img src="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902200911.png" alt="ida graph显示"></p>
+<p>可以看到结构当中的显眼的红字：<strong>Sorry, this node is too big to display</strong></p>
+<p>鼠标点一下，按空格，转换为文本模式，如图：<br><img src="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902201535.png" alt="ida文本模式"><br>手动下滑，当时被吓住了，滑动栏走得太慢了，一气呵成，拖到底，大致算了下，有60万条汇编指令…</p>
+<p>回过神来，看了些汇编指令，发现绝大多数的指令都是再往几个变量里面赋值和异或什么的，大约有几十万条，明显就是在混淆</p>
+<p>当时的思路就是，<strong>去其糟粕取其精华</strong></p>
+<h3 id="ida-f5大法好啊"><a href="#ida-f5大法好啊" class="headerlink" title="ida f5大法好啊"></a><a href="#ida-f5大法好啊" title="ida f5大法好啊"></a>ida f5大法好啊</h3><p>指令太多，不适合刚，所以使用f5大法看看，由于有一部分的代码有60万之多，所以f5的时候，一度卡住了，造成了ida被日的假象，去问兔师傅被怼，<strong>要对ida有信心！</strong><br>所以等了十分钟左右，显示出了<strong>可爱的类C代码</strong>，如图：<br><img src="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902210915.png" alt="f5大法好啊"></p>
+<p>可以看到类似这样的语句：</p>
+<blockquote>
+<p>dword_6941B4 ^= dword_6941B0; 与某个变量异或<br>dword_694150 = -1304438312; 将一些值赋给变量</p>
+</blockquote>
+<p>往下使劲拖，<strong>发现事情开始变得简单</strong></p>
+<p><img src="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902202650.png" alt="关键之处"></p>
+<p>用re菜鸡的直觉感觉到了，这就是flag经过<strong>前面混淆部分的代码处理</strong>后，最终和<strong>目标</strong>进行比较</p>
+<p>发现重要的东西只有<strong>byte_694100-byte_694119</strong>，这是flag存储的位置，和<strong>dword_694060</strong><br>这时我有一个大胆的想法，就是混淆语句都是处理的694119以后的，所以只要<strong>去除和694119以后位置的语句就行</strong></p>
+<p>所以事情变得简单了：<br>只要去除混淆代码，真相就大白了。</p>
+<h3 id="去除混淆代码"><a href="#去除混淆代码" class="headerlink" title="去除混淆代码"></a><a href="#去除混淆代码" title="去除混淆代码"></a>去除混淆代码</h3><p>俗话说，魔高一丈，道高一尺：</p>
+<p>办法总比困难多。<strong>ctr + c</strong>复制到notepad++<br>开始处理。<br>可以看到：<br><img src="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902203131.png" alt="相似"><br>有很多类似的语句怎么处理呢？</p>
+<p>问了下兔师傅，兔师傅说用正则，于是花了些时间，学了下notepad的正则表达式，在<strong>查找里面打开正则表达式</strong>，查找到相应的大致语句，然后替换就行</p>
+<p>这里有两个可以参靠的学习notepad++的正则的资料：</p>
+<p><a href="http://blog.csdn.net/gdp12315_gu/article/details/51730584" target="_blank" rel="noopener"><strong>正则语法</strong></a></p>
+<p><a href="https://www.crifan.com/files/doc/docbook/rec_soft_npp/release/htmls/npp_func_regex_replace.html" target="_blank" rel="noopener"><strong>正则使用学习例子</strong></a></p>
+<p>使用</p>
+<blockquote>
+<p>dword_6941[^0-1][0-9A-F]\s\^= dword_6941[^0-1][0-9A-F]\;</p>
+</blockquote>
+<p>就可以去除上面<strong>相似</strong>中的语句。</p>
+<p>使用：</p>
+<blockquote>
+<p>dword_6941[^0-1][0-9A-F]\s=\s\d+;<br>匹配赋值语句</p>
+</blockquote>
+<p>然后就是将byte_6941xx类的东西整理成相应的数组变量。<br>使用：</p>
+<blockquote>
+<p>byte_6941([0-2][0-9A-F])</p>
+</blockquote>
+<p>去匹配这些内容<br>，然后自己替换成：</p>
+<blockquote>
+<p>flag[0x\1]</p>
+</blockquote>
+<p>ps：这时候这个下标时16进制，后续还要处理，不过这个处理简单，不用正则就行，这个就不说了。</p>
+<p>然后变得越来越清晰了。</p>
+<p>实际上就是**将flag的位进行加减或者异或，只要逆序并且+变-，-变+，++变–，–变++<br>就能写出kegen了</p>
+<h3 id="写keygen"><a href="#写keygen" class="headerlink" title="写ｋｅｙｇｅｎ"></a><a href="#写keygen" title="写ｋｅｙｇｅｎ"></a>写ｋｅｙｇｅｎ</h3><p>替换之后，然后将<strong>操作逆向替换就行</strong>（<em>+变-，-变+，++变–，–变++</em>)<br>最后就是将语句逆向了，排列了，问了下小伙伴，可以<strong>c语言用字符串数组数组实现</strong>也可以用<strong>c++的std流</strong>（好像是），我自己用的是py，py大法好啊<br>然后再逆过来即可</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/04/writeup-for-whctf2017-re/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">&lt;</strong>
+      <div class="article-nav-title">
+        
+          writeup for whctf2017 re
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/10/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hello World</div>
+      <strong class="article-nav-caption">&gt;</strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="ds-share share" data-thread-key="南邮re-writeup" data-title="南邮re writeup" data-url="http://notwo1f.github.io/2018/05/04/南邮re-writeup/"  data-images="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" data-content="南邮re writeup">
+    <div class="ds-share-inline">
+      <ul  class="ds-share-icons-16">
+      	<li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+        <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+        <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+        <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+        <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+      </ul>
+      <div class="ds-share-icons-more">
+      </div>
+    </div>
+ </div>
+ 
+
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+      <div class="footer-left">
+        &copy; 2018 Notwolf
+      </div>
+        <div class="footer-right">
+          <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/smackgg/hexo-theme-smackdown" target="_blank">Smackdown</a>
+        </div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="/js/main.js"></script>
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js"></script>
+
+
+  </div>
+</body>
+</html>
