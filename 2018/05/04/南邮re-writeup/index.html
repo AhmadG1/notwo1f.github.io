@@ -1,280 +1,155 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
+
 <head>
-  <meta charset="utf-8">
-  
-  <title>南邮re writeup | Notwolf&#39;s Blog</title>
-
-  <!-- keywords -->
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="writeup-南邮攻防平台RE练习RE300 第一题拖进IDA里面看一下： 易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。 为了便于分析，修改了一下变量名，加了些注释：进入 flag处理函数看一下。有图可知是读取特定数据段中的数据元素，根据数据元素的值进行">
-<meta property="og:type" content="article">
-<meta property="og:title" content="南邮re writeup">
-<meta property="og:url" content="http://notwo1f.github.io/2018/05/04/南邮re-writeup/index.html">
-<meta property="og:site_name" content="Notwolf&#39;s Blog">
-<meta property="og:description" content="writeup-南邮攻防平台RE练习RE300 第一题拖进IDA里面看一下： 易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。 为了便于分析，修改了一下变量名，加了些注释：进入 flag处理函数看一下。有图可知是读取特定数据段中的数据元素，根据数据元素的值进行">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片1.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片2.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片3.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片4.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片5.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片6.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/图片7.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902200911.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902201535.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902210915.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902202650.png">
-<meta property="og:image" content="http://ovni67v5o.bkt.clouddn.com/QQ截图20170902203131.png">
-<meta property="og:updated_time" content="2018-05-04T07:38:48.029Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="南邮re writeup">
-<meta name="twitter:description" content="writeup-南邮攻防平台RE练习RE300 第一题拖进IDA里面看一下： 易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。 为了便于分析，修改了一下变量名，加了些注释：进入 flag处理函数看一下。有图可知是读取特定数据段中的数据元素，根据数据元素的值进行">
-<meta name="twitter:image" content="http://ovni67v5o.bkt.clouddn.com/图片1.png">
-  
-    <link rel="alternative" href="/atom.xml" title="Notwolf&#39;s Blog" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="https://ovni67v5o.bkt.clouddn.com/blog/180310/44ckhLemj4.png">
-  
-  <link rel="stylesheet" href="/css/style.css">
-  
-<script>
-    (function(){
-        var bp = document.createElement('script');
-        var curProtocol = window.location.protocol.split(':')[0];
-        if (curProtocol === 'https') {
-            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	<link rel="bookmark"  type="image/x-icon"  href="/img/logo_miccall.png"/>
+	<link rel="shortcut icon" href="/img/logo_miccall.png">
+	
+			    <title>
+    Notwolf's Blog
+    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="/css/mic_main.css" />
+    <link rel="stylesheet" href="/css/dropdownMenu.css" />
+    <meta name="keywords" content="miccall" />
+    
+    	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	 
+    <noscript>
+        <link rel="stylesheet" href="/css/noscript.css" />
+    </noscript>
+    <style type="text/css">
+        body:before {
+          content: ' ';
+          position: fixed;
+          top: 0;
+          background: url('/img/bg.jpg') center 0 no-repeat;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          background-size: cover; 
         }
-        else {
-            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    </style>
+
+			    
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         }
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(bp, s);
-    })();
-</script>
+      });
+    </script>
 
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script async type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
   
-<!-- Google Analytics -->
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-85415703-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
-<!-- End Google Analytics -->
 
 
-  <script src="//cdn.bootcss.com/require.js/2.3.2/require.min.js"></script>
-  <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
-
-  
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.scrollex.min.js"></script>
+    <script src="/js/jquery.scrolly.min.js"></script>
+    <script src="/js/skel.min.js"></script>
+    <script src="/js/util.js"></script>
+    <script src="/js/main.js"></script>
+	
 </head>
-<body>
-  <div id="container">
-    <div id="particles-js"></div>
-    <div class="left-col">
-    <div class="overlay"></div>
-<div class="intrude-less">
-	<header id="header" class="inner">
-		<a href="/" class="profilepic">
-			
-			<img lazy-src="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" class="js-avatar">
-			
-		</a>
-
-		<hgroup>
-		  <h1 class="header-author"><a href="/">Notwolf</a></h1>
-		</hgroup>
-
+    
 		
-		<p class="header-subtitle">除了技术还有生活！</p>
-		
+<!-- Layouts -->
 
-		
-			<div class="switch-btn">
-				<div class="icon">
-					<div class="icon-ctn">
-						<div class="icon-wrap icon-house" data-idx="0">
-							<div class="birdhouse"></div>
-							<div class="birdhouse_holes"></div>
-						</div>
-						<div class="icon-wrap icon-ribbon hide" data-idx="1">
-							<div class="ribbon"></div>
-						</div>
-						
-						<div class="icon-wrap icon-link hide" data-idx="2">
-							<div class="loopback_l"></div>
-							<div class="loopback_r"></div>
-						</div>
-						
-						
-						<div class="icon-wrap icon-me hide" data-idx="3">
-							<div class="user"></div>
-							<div class="shoulder"></div>
-						</div>
-						
-					</div>
-					
-				</div>
-				<div class="tips-box hide">
-					<div class="tips-arrow"></div>
-					<ul class="tips-inner">
-						<li>菜单</li>
-						<li>标签</li>
-						
-						<li>友情链接</li>
-						
-						
-						<li>关于我</li>
-						
-					</ul>
-				</div>
-			</div>
-		
 
-		<div class="switch-area">
-			<div class="switch-wrap">
-				<section class="switch-part switch-part1">
-					<nav class="header-menu">
-						<ul>
-						
-							<li><a href="/">主页</a></li>
-				        
-							<li><a href="/archives">所有文章</a></li>
-				        
-						</ul>
-					</nav>
-					<nav class="header-nav">
-						<div class="social">
-							
-								<a class="github" target="_blank" href="https://github.com/notwo1f" title="github">github</a>
-					        
-								<a class="mail" target="_blank" href="/notwolf888@gmail.com" title="mail">mail</a>
-					        
-						</div>
-					</nav>
-				</section>
-				
-				
-				<section class="switch-part switch-part2">
-					<div class="widget tagcloud" id="js-tagcloud">
-						
-					</div>
-				</section>
-				
-				
-				
-				<section class="switch-part switch-part3">
-					<div id="js-friends">
-					
-			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://f1sh.site">f1sh</a>
-			        
-			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://iruby.me/">dimo</a>
-			        
-			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://feiyyx.cc/">feiyyx</a>
-			        
-			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.k0rz3n.com/">k0rz3n</a>
-			        
-			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.pupiles.com/">pupiles</a>
-			        
-			        </div>
-				</section>
-				
 
-				
-				
-				<section class="switch-part switch-part4">
-				
-					<div id="js-aboutme">Link knowledge with technology and Follow my heart</div>
-				</section>
-				
-			</div>
-		</div>
-	</header>				
-</div>
-    </div>
-    <div class="mid-col">
-      <nav id="mobile-nav">
-  	<div class="overlay">
-  		<div class="slider-trigger"></div>
-  		<h1 class="header-author js-mobile-header hide">Notwolf</h1>
-  	</div>
-	<div class="intrude-less">
-		<header id="header" class="inner">
-			<div class="profilepic">
-				<img lazy-src="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" class="js-avatar">
-			</div>
-			<hgroup>
-			  <h1 class="header-author">Notwolf</h1>
-			</hgroup>
-			
-			<p class="header-subtitle">除了技术还有生活！</p>
-			
-			<nav class="header-menu">
-				<ul>
-				
-					<li><a href="/">主页</a></li>
+<!--  代码渲染  -->
+<link rel="stylesheet" href="/css/prism_coy.css" />
+<link rel="stylesheet" href="/css/typo.css" />
+<!-- 文章页 -->
+<body class="is-loading">
+    <!-- Wrapper 外包 s-->
+    <div id="wrapper" class="fade-in">
+        <!-- Intro 头部显示 s -->
+        <!-- Intro 头部显示 e -->
+        <!-- Header 头部logo start -->
+        <header id="header">
+    <a href="/" class="logo">MICCALL</a>
+</header>
+        <!-- Nav 导航条 start -->
+        <nav id="nav" class="special" >
+            <ul class="menu links" >
+			<!-- Homepage  主页  --> 
+			<li >
+	            <a href="/" rel="nofollow">主页</a>
+	        </li>
+			<!-- categories_name  分类   --> 
+	        
+	        <li class="active">
+	            <a href="#s1">分类</a>
+	                    <ul class="submenu">
+	                        <li>
+	                        
+	                    </ul>
+	        </li>
+	        
+	        <!-- archives  归档   --> 
+	        
+	        
+		        <!-- Pages 自定义   -->
 		        
-					<li><a href="/archives">所有文章</a></li>
+		        <li>
+		            <a href="/about/" title="简历">
+		                简历
+		            </a>
+		        </li>
 		        
-		        <div class="clearfix"></div>
-				</ul>
-			</nav>
-			<nav class="header-nav">
-				<div class="social">
-					
-						<a class="github" target="_blank" href="https://github.com/notwo1f" title="github">github</a>
-			        
-						<a class="mail" target="_blank" href="/notwolf888@gmail.com" title="mail">mail</a>
-			        
-				</div>
-			</nav>
-		</header>				
-	</div>
+		        <li>
+		            <a href="/group/" title="团队">
+		                团队
+		            </a>
+		        </li>
+		        
+		        <li>
+		            <a href="/gallery/" title="图库">
+		                图库
+		            </a>
+		        </li>
+		        
+		        <li>
+		            <a href="/tag/" title="标签">
+		                标签
+		            </a>
+		        </li>
+		        
+
+
+            </ul>
+            <!-- icons 图标   -->
+			<ul class="icons">
+		            
+		                <li><a href="https://github.com/miccall" class="icon fa-github"><span class="label">GitHub</span></a></li>
+		            
+		            
+		            
+		            
+			</ul>
 </nav>
-      <div class="body-wrap"><article id="post-南邮re-writeup" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/05/04/南邮re-writeup/" class="article-date">
-  	<time datetime="2018-05-04T07:38:22.000Z" itemprop="datePublished">2018-05-04</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      南邮re writeup
-      
-    </h1>
-  
 
-      </header>
-      
-      <div class="article-info article-info-post">
-        
-        
-
-        
-        <div class="clearfix"></div>
-      </div>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="writeup-南邮攻防平台RE练习"><a href="#writeup-南邮攻防平台RE练习" class="headerlink" title="writeup-南邮攻防平台RE练习"></a>writeup-南邮攻防平台RE练习</h1><h1 id="RE300-第一题"><a href="#RE300-第一题" class="headerlink" title="RE300 第一题"></a>RE300 第一题</h1><h3 id="拖进IDA里面看一下："><a href="#拖进IDA里面看一下：" class="headerlink" title="拖进IDA里面看一下："></a><a href="#拖进IDA里面看一下：" title="拖进IDA里面看一下："></a>拖进IDA里面看一下：</h3><p><img src="http://ovni67v5o.bkt.clouddn.com/图片1.png" alt=""></p>
+        <div id="main" >
+            <div class ="post_page_title_img" style="height: 25rem;background-image: url();background-position: center; background-repeat:no-repeat; background-size:cover;-moz-background-size:cover;overflow:hidden;" >
+                <a href="#" style="padding: 4rem 4rem 2rem 4rem ;"><h2 >南邮re writeup</h2></a>
+            </div>
+            <!-- Post -->
+            <div class="typo" style="padding: 3rem;">
+                <h1 id="writeup-南邮攻防平台RE练习"><a href="#writeup-南邮攻防平台RE练习" class="headerlink" title="writeup-南邮攻防平台RE练习"></a>writeup-南邮攻防平台RE练习</h1><h1 id="RE300-第一题"><a href="#RE300-第一题" class="headerlink" title="RE300 第一题"></a>RE300 第一题</h1><h3 id="拖进IDA里面看一下："><a href="#拖进IDA里面看一下：" class="headerlink" title="拖进IDA里面看一下："></a><a href="#拖进IDA里面看一下：" title="拖进IDA里面看一下："></a>拖进IDA里面看一下：</h3><p><img src="http://ovni67v5o.bkt.clouddn.com/图片1.png" alt=""></p>
 <p>易知flag长度为24,大致思路是输入flag，输入的flag经过sub_4005B6这个函数处理，处理之后看flag和dword_601060这个里面存的数据一致（涉及数据类型的转换）。</p>
 <p>为了便于分析，修改了一下变量名，加了些注释：<br><img src="http://ovni67v5o.bkt.clouddn.com/图片2.png" alt=""><br>进入 flag处理函数看一下。<br><img src="http://ovni67v5o.bkt.clouddn.com/图片3.png" alt=""><br>有图可知是读取特定数据段中的数据元素，根据数据元素的值进行switch case操作，看循环便知道要进行5000次的循环，而且每个循环都是根据那个特定数据段中的5000个不同的数据来进行的不同的操作，动态调试的可能性几乎为0，只能静态分析，要是能提取出那个数据段中的15000个数据，逆向的进行循环操作就达到解密的操作了。<br>感谢杜神指点，才知道ida有一个专门的导出特定的数据的功能，不然这题我是没法做的，还是太菜。</p>
 <p><strong>注意到：</strong></p>
@@ -335,104 +210,108 @@
 <p>实际上就是**将flag的位进行加减或者异或，只要逆序并且+变-，-变+，++变–，–变++<br>就能写出kegen了</p>
 <h3 id="写keygen"><a href="#写keygen" class="headerlink" title="写ｋｅｙｇｅｎ"></a><a href="#写keygen" title="写ｋｅｙｇｅｎ"></a>写ｋｅｙｇｅｎ</h3><p>替换之后，然后将<strong>操作逆向替换就行</strong>（<em>+变-，-变+，++变–，–变++</em>)<br>最后就是将语句逆向了，排列了，问了下小伙伴，可以<strong>c语言用字符串数组数组实现</strong>也可以用<strong>c++的std流</strong>（好像是），我自己用的是py，py大法好啊<br>然后再逆过来即可</p>
 
-      
-    </div>
-    
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2018/05/04/writeup-for-whctf2017-re/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">&lt;</strong>
-      <div class="article-nav-title">
-        
-          writeup for whctf2017 re
-        
-      </div>
-    </a>
-  
-  
-</nav>
+            </div>
 
-  
-</article>
+            <!-- Post Comments -->
+            
+    <!-- 使用 DISQUS_CLICK -->
+<div id="disqus-comment">
+    <div id="disqus_thread"></div>
 
-
-<div class="ds-share share" data-thread-key="南邮re-writeup" data-title="南邮re writeup" data-url="http://notwo1f.github.io/2018/05/04/南邮re-writeup/"  data-images="http://ovni67v5o.bkt.clouddn.com/d27bebb818a83d2a26074c07b578db7c.jpg" data-content="南邮re writeup">
-    <div class="ds-share-inline">
-      <ul  class="ds-share-icons-16">
-      	<li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
-        <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
-        <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
-        <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
-        <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
-      </ul>
-      <div class="ds-share-icons-more">
-      </div>
-    </div>
- </div>
- 
-
-
-
-
-
+<!-- add animation -->
+<style>
+	.disqus_click_btn {
+            line-height: 30px;
+            margin: 0;
+            min-width: 50px;
+            padding: 0 14px;
+            display: inline-block;
+            font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0;
+            overflow: hidden;
+            will-change: box-shadow;
+            transition: box-shadow .2s cubic-bezier(.4, 0, 1, 1), background-color .2s cubic-bezier(.4, 0, .2, 1), color .2s cubic-bezier(.4, 0, .2, 1);
+            outline: 0;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            vertical-align: middle;
+            border: 0;
+            background: rgba(158, 158, 158, .2);
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
+            color: #fff;
+            background-color: #7EC0EE;
+            text-shadow: 0
+        }
+</style>
+	
+<div class="btn_click_load" id="disqus_bt"> 
+    <button class="disqus_click_btn">点击查看评论</button>
 </div>
-      <footer id="footer">
-  <div class="outer">
-    <div id="footer-info">
-      <div class="footer-left">
-        &copy; 2018 Notwolf
-      </div>
-        <div class="footer-right">
-          <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/smackgg/hexo-theme-smackdown" target="_blank">Smackdown</a>
+
+<!--
+<script type="text/javascript">
+$('.btn_click_load').click(function() {
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'http-miccall-tech'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    document.getElementById('disqus_bt').style.display = "none";
+});
+</script>
+-->
+<script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'http://notwo1f.github.io/2018/05/04/南邮re-writeup/';  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://notwo1f.github.io/2018/05/04/南邮re-writeup/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+</script>
+
+<script type="text/javascript">
+    $('.btn_click_load').click(function() {  //click to load comments
+        (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document;
+            var s = d.createElement('script');
+            s.src = '//http-miccall-tech.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', + new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+        $('.btn_click_load').css('display','none');
+    });
+</script>
+</div>
+<style>
+    #disqus-comment{
+        background-color: #eee;
+        padding: 2pc;
+    }
+</style>
+
+
+        </div>
+        <!-- Copyright 版权 start -->
+                <div id="copyright">
+            <ul>
+                <li>&copy;Powered By <a href="https://hexo.io/zh-cn/" style="border-bottom: none;">hexo</a></li>
+                <li>Design: <a href="http://miccall.tech " style="border-bottom: none;">miccall</a></li>
+            </ul>
+            
+            	<span id="busuanzi_container_site_pv">2018总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+			
         </div>
     </div>
-  </div>
-</footer>
-    </div>
-    
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-
-<script>
-	var yiliaConfig = {
-		fancybox: true,
-		mathjax: true,
-		animate: true,
-		isHome: false,
-		isPost: true,
-		isArchive: false,
-		isTag: false,
-		isCategory: false,
-		open_in_new: false
-	}
-</script>
-<script src="/js/main.js"></script>
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js"></script>
-
-
-  </div>
 </body>
+
+
+
+ 	
 </html>
